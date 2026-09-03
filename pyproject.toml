@@ -1,0 +1,19 @@
+[project]
+name = "django-cource"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Vasya",email = "V.timashoff@gmail.com"}
+]
+requires-python = ">=3.11"
+dependencies = [
+    "psycopg2 (>=2.9.12,<3.0.0)",
+    "pillow (>=12.3.0,<13.0.0)",
+    "dotenv (>=0.9.9,<0.10.0)",
+    "django (>=5.2,<5.3)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

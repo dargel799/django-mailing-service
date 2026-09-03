@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Виртуальное окружение
+venv/
+env/
+.venv/
+ENV/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/media
+/staticfiles/
+
+# Секреты и переменные окружения
+.env
+.env.local
+*.env
+
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Тесты и покрытие
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Systemd / деплой (если храните конфиги локально)
+*.pid
