@@ -1,0 +1,60 @@
+{% extends 'mailings/main.html'%}
+{% block content %}
+
+<div class="album py-5 bg-body-tertiary">
+        <div class="container">
+            <div class="row row-cols-1 g-3">
+
+                <div class="col">
+                    <div class="card shadow-sm">
+
+                        <div class="card-body">
+                            <p class="card-text">Рассылка №{{ object.pk }}</p>
+
+                            <div class="row">
+
+                                <div class="col-md-4">
+                                    <ul class="list-unstyled mb-3">
+                                        <li><strong>Дата первой отправки:</strong> {{ object.first_send_at }}</li>
+                                        <li><strong>Периодичность:</strong> {{ object.get_periodicity_display }}</li>
+                                        <li><strong>Статус:</strong> {{ object.get_status_display }}</li>
+                                    </ul>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3">
+                                        <p class="mb-1"><strong>Тема письма:</strong> {{ object.message.subject }}</p>
+                                        <p class="mb-0"><strong>Текст письма:</strong> {{ object.message.body }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3">
+                                        <strong>Клиенты:</strong>
+                                        <ul class="list-unstyled mb-0">
+                                            {% for client in object.clients.all %}
+                                                <li>{{ client.email }}</li>
+                                            {% empty %}
+                                                <li>нет клиентов</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="btn-group">
+                                     <a href="{% url 'mailings:mailing_update' object.pk  %}"  class="btn btn-primary my-2">Редактировать</a>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                                </div>
+                                <small class="text-body-secondary">9 mins</small></div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -14,16 +14,18 @@ class RegisterView(CreateView):
     form_class = UserCreateForm
     success_url = reverse_lazy('users:login')
 
+
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.is_active = False
-        self.object.generate_confirmation_token()
-        self.object.save()
+        """Создаёт неактивного пользователя и отправляет письмо для подтверждения почты."""
+        form.instance.is_active = False
+        form.instance.generate_confirmation_token()
+        response = super().form_valid(form)
         send_confirmation_email(self.object)
-        return redirect(self.get_success_url())
+        return response
 
 
 def confirm_email(request, token):
+    """Подтверждает почту пользователя по токену из письма и активирует его аккаунт."""
     user = get_object_or_404(User, token=token)
     if not user.is_token_valid():
         return render(request, 'users/token_expired.html', status=400)

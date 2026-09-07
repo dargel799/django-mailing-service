@@ -1,0 +1,67 @@
+{% extends 'mailings/main.html' %}
+{% block content %}
+
+<div class="col-12">
+<div class="row justify-content-center">
+    <div class="col-10 offset-1">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        {# Левая колонка #}
+                        <div class="col-md-5">
+                            <div class="mb-3">
+                                <label for="{{ form.first_send_at.id_for_label }}" class="form-label">
+                                    Дата и время первой отправки рассылки
+                                </label>
+                                {{ form.first_send_at }}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.periodicity.id_for_label }}" class="form-label">
+                                    Периодичность
+                                </label>
+                                {{ form.periodicity }}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Clients</label>
+                                {{ form.clients }}
+                            </div>
+                        </div>
+
+                        {# Правая колонка #}
+                        <div class="col-md-7">
+                            <div class="mb-3">
+                                <label for="{{ form.subject.id_for_label }}" class="form-label">
+                                    Тема письма
+                                </label>
+                                {{ form.subject }}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.body.id_for_label }}" class="form-label">
+                                    Текст письма
+                                </label>
+                                {{ form.body }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        {% if object %}
+                        Сохранить
+                        {%else%}
+                        Создать
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}
