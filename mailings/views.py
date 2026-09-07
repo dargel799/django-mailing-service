@@ -1,4 +1,6 @@
-from django.shortcuts import render
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, DeleteView, UpdateView
 
 from mailings.forms import MailingForm
@@ -11,8 +13,8 @@ class MessageListView(ListView):
 class MessageCreateView(CreateView):
     model = Message
     fields = ['subject', 'body']
-    success_url = '/'
-    
+    success_url = reverse_lazy('mailings:mailing-list')
+
 
 class MessageDetailView(DetailView):
     model = Message
@@ -20,33 +22,46 @@ class MessageDetailView(DetailView):
 
 class MessageUpdateView(UpdateView):
     model = Message
-    success_url = '/'
+    success_url = reverse_lazy('mailings:mailing-list')
 
 
 class MessageDeleteView(DeleteView):
     model = Message
-    success_url = '/'
+    success_url = reverse_lazy('mailings:mailing-list')
 
 
-class MailingListView(ListView):
+class OwnerRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.get_object().owner == self.request.user
+
+
+class MailingListView(LoginRequiredMixin, ListView):
     model = Mailing
 
+    def get_queryset(self):
+        return Mailing.objects.filter(owner=self.request.user)
 
-class MailingCreateView(CreateView):
+
+class MailingCreateView(LoginRequiredMixin, CreateView):
     model = Mailing
     form_class = MailingForm
-    success_url = '/'
+    success_url = reverse_lazy('mailings:mailing_list')
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
 
-class MailingDetailView(DetailView):
+class MailingDetailView(OwnerRequiredMixin, DetailView):
     model = Mailing
 
 
-class MailingUpdateView(UpdateView):
+class MailingUpdateView(OwnerRequiredMixin, UpdateView):
     model = Mailing
-    success_url = '/'
+    form_class = MailingForm
+    success_url = reverse_lazy('mailings:mailing_list')
 
 
-class MailingDeleteView(DeleteView):
+class MailingDeleteView(OwnerRequiredMixin, DeleteView):
     model = Mailing
-    success_url = '/'
+    success_url = reverse_lazy('mailings:mailing_list')

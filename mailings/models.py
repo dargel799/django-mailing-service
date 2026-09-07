@@ -1,5 +1,8 @@
 from django.db import models
 
+from users.models import User
+
+
 class Client(models.Model):
     email = models.EmailField(verbose_name='контактный email')
     full_name = models.CharField(max_length=100, blank=True, null=True, verbose_name='Ф. И. О.')
@@ -60,6 +63,7 @@ class Mailing(models.Model):
     status = models.CharField(max_length=max(len(i[0]) for i in Status.choices), choices=Status.choices, default=Status.CREATED, verbose_name='статус рассылки')
     message = models.OneToOneField(Message, on_delete=models.CASCADE, verbose_name='сообщение', related_name='рассылка')
     clients = models.ManyToManyField('Client', related_name='mailings')
+    owner = models.ForeignKey(User, related_name='mailings', verbose_name='владелец', on_delete=models.CASCADE)
 
 """
 завершена, создана, запущена
