@@ -1,22 +1,55 @@
-{% extends mailings/main.html %}
+{% extends 'mailings/main.html' %}
 {% block content %}
 
-<div class="col-12">
-<div class="row">
-    <div class="col-6">
-        <div class="card">
-            <div class="card-body">
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ form.as_p}}
-                    <button type="submit" class="btn btn-success">
-                        {% if object %}
-                        Сохранить
-                        {%else%}
-                        Создать
-                        {% endif %}
-                    </button>
-                </form>
+<style>
+    .register-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+            padding-bottom: 40px;
+    }
+
+    .register-wrapper form {
+        width: 100%;
+        text-align: left;
+    }
+
+    .register-wrapper .form-field,
+    .register-wrapper p {
+        margin-bottom: 15px;
+    }
+
+    .register-wrapper input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+
+    .register-wrapper button {
+        width: 100%;
+        padding: 10px;
+    }
+</style>
+
+<div class="register-wrapper">
+    <div class="row justify-content-center" style="width: 100%;">
+        <div class="col-md-6 col-sm-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Регистрация</h2>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-success">
+                            {% if object %}
+                                Сохранить
+                            {% else %}
+                                Создать
+                            {% endif %}
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

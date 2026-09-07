@@ -6,11 +6,11 @@ from users.models import User
 
 def send_confirmation_email(user: User):
     confirm_path = reverse('users:confirm_email', kwargs={'token': user.token})
-    confirm_url = f'https://{settings.SITE_DOMAIN}{confirm_path}'
-    message = f'Для регистрации профиля {user.username}, порейдите по ссылке: {confirm_url}',
+    confirm_url = f'http://{settings.SITE_DOMAIN}{confirm_path}'
+    message = f'Для регистрации профиля {user.full_name}, порейдите по ссылке: {confirm_url}'
     send_mail(
         subject='Подтверждение почты',
-        message = f'Для регистрации профиля {user.username}, порейдите по ссылке: http://http://127.0.0.1:8000/users/confim-email/{user.token}',
+        message = message,
         from_email=settings.EMAIL_HOST_USER,
         recipient_list=[user.email]
     )
