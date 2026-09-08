@@ -3,10 +3,12 @@ from django.db import models
 from users.models import User
 
 
+OPTIONAL = {'null': True, 'blank': True}
+
 class Client(models.Model):
     email = models.EmailField(verbose_name='контактный email')
-    full_name = models.CharField(max_length=100, blank=True, null=True, verbose_name='Ф. И. О.')
-    comment = models.TextField(blank=True, null=True, verbose_name='комментарий')
+    full_name = models.CharField(max_length=100, **OPTIONAL, verbose_name='Ф. И. О.')
+    comment = models.TextField(**OPTIONAL, verbose_name='комментарий')
 
     def __str__(self):
         return f'{self.full_name}: {self.email}'
@@ -36,7 +38,7 @@ class Attempt(models.Model):
 
     attempted_at = models.DateTimeField(auto_now_add=True, verbose_name='дата и время попытки')
     status = models.CharField(verbose_name='статус попытки', choices=Status.choices, max_length=max(len(i[0]) for i in Status.choices))
-    answer = models.TextField(null=True, blank=True, verbose_name='ответ почтового сервера')
+    answer = models.TextField(verbose_name='ответ почтового сервера')
     mailing = models.ForeignKey('Mailing', related_name='attempts', on_delete=models.CASCADE, verbose_name='рассылка')
 
     def __str__(self):
@@ -58,16 +60,15 @@ class Mailing(models.Model):
         CREATED = 'created', 'создана'
         STARTED = 'started', 'запущена'
 
-    first_send_at = models.DateTimeField(null=True, blank=True, verbose_name='дата и время первой отправки рассылки')
+    first_send_at = models.DateTimeField(verbose_name='дата и время первой отправки рассылки')
+    next_send_at = models.DateTimeField(verbose_name='Дата и время следующий отправки')
+    end_send_at = models.DateTimeField(verbose_name='Дата и время последней отправки', **OPTIONAL)
     periodicity = models.CharField(max_length=max(len(i[0]) for i in Frequency.choices), choices=Frequency.choices, verbose_name='периодичность')
     status = models.CharField(max_length=max(len(i[0]) for i in Status.choices), choices=Status.choices, default=Status.CREATED, verbose_name='статус рассылки')
     message = models.OneToOneField(Message, on_delete=models.CASCADE, verbose_name='сообщение', related_name='рассылка')
     clients = models.ManyToManyField('Client', related_name='mailings')
     owner = models.ForeignKey(User, related_name='mailings', verbose_name='владелец', on_delete=models.CASCADE)
 
-"""
-завершена, создана, запущена
-"""
 
 
 
