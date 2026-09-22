@@ -28,7 +28,7 @@ def send_mailing(pk: int) -> MailingRunReport:
 
     mailing = (
         Mailing.objects
-        .select_related('massage')
+        .select_related('message')
         .prefetch_related('clients')
         .get(pk=pk)
     )
