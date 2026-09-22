@@ -6,7 +6,7 @@ from users.models import User
 OPTIONAL = {'null': True, 'blank': True}
 
 class Client(models.Model):
-    email = models.EmailField(verbose_name='контактный email')
+    email = models.EmailField(verbose_name='контактный email', unique=True)
     full_name = models.CharField(max_length=100, **OPTIONAL, verbose_name='Ф. И. О.')
     comment = models.TextField(**OPTIONAL, verbose_name='комментарий')
 
