@@ -9,16 +9,24 @@
                     <div class="card shadow-sm">
 
 
-                        <div class="card-body"><p class="card-text">Рассылка №{{ object.pk }}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group">
-                                     <a href="{% url 'mailings:mailing_detail' object.pk  %}"  class="btn btn-primary my-2">Просмотр</a>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
-                                </div>
-                                <small class="text-body-secondary">9 mins</small></div>
+<div class="card-body">
+    <p class="card-text">Рассылка №{{ object.pk }}</p>
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="btn-group">
+            <a href="{% url 'mailings:mailing_detail' object.pk %}" class="btn btn-primary rounded-3 my-2">Просмотр</a>
+            <a href="{% url 'mailings:mailing_update' object.pk %}" class="btn btn-warning rounded-3 my-2 ms-2">Редактировать</a>
+            <a href="{% url 'mailings:mailing_delete' object.pk %}" class="btn btn-danger rounded-3 my-2 ms-2">Удалить</a>
+        </div>
+    </div>
 
-                        </div>
-                    </div>
+    <small class="text-body-secondary d-block text-end mt-2">
+        {% if object.next_send_at %}
+            До следующей отправки: {{ object.next_send_at|timeuntil }}
+        {% else %}
+            Отправка не запланирована
+        {% endif %}
+    </small>
+</div>
                 </div>
                 {% endfor %}
             </div>
