@@ -3,8 +3,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, DeleteView, UpdateView
 
-from mailings.forms import MailingForm
-from mailings.models import Message, Mailing
+from mailings.forms import MailingForm, ClientFormSet
+from mailings.models import Message, Mailing, Client
 
 
 class MessageListView(ListView):
@@ -47,10 +47,36 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
     form_class = MailingForm
     success_url = reverse_lazy('mailings:mailing_list')
 
-    def form_valid(self, form):
-        form.instance.owner = self.request.user
-        return super().form_valid(form)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['client_formset'] = ClientFormSet(
+                self.request.POST,
+                queryset=Client.objects.none(),
+                prefix='clients',
+            )
+        else:
+            context['client_formset'] = ClientFormSet(
+                queryset=Client.objects.none(),
+                prefix='clients',
+            )
+        return context
 
+    def form_valid(self, form):
+        context = self.get_context_data()
+        client_formset = context['client_formset']
+
+        if not client_formset.is_valid():
+            return self.render_to_response(self.get_context_data(form=form))
+
+        form.instance.owner = self.request.user
+        response = super().form_valid(form)
+
+        new_clients = client_formset.save()
+        if new_clients:
+            self.object.clients.add(*new_clients)
+
+        return response
 
 class MailingDetailView(OwnerRequiredMixin, DetailView):
     model = Mailing

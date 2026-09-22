@@ -1,6 +1,7 @@
 from django import forms
+from django.forms import modelformset_factory
 
-from mailings.models import Mailing, Message
+from mailings.models import Mailing, Message, Client
 
 
 class MailingForm(forms.ModelForm):
@@ -48,3 +49,11 @@ class MailingForm(forms.ModelForm):
             self.save_m2m()
 
         return mailing
+
+
+ClientFormSet = modelformset_factory(
+    Client,
+    fields=('full_name', 'email', 'comment'),
+    extra=2,
+    can_delete=True
+)
