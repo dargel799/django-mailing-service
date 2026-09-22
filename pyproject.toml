@@ -11,7 +11,8 @@ dependencies = [
     "pillow (>=12.3.0,<13.0.0)",
     "dotenv (>=0.9.9,<0.10.0)",
     "django (>=5.2,<5.3)",
-    "ipython (>=9.17.1,<10.0.0)"
+    "ipython (>=9.17.1,<10.0.0)",
+    "python-dateutil (>=2.9.0.post0,<3.0.0)"
 ]
 
 
