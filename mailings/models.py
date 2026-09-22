@@ -47,6 +47,7 @@ class Attempt(models.Model):
     class Meta:
         verbose_name = 'попытка'
         verbose_name_plural = 'попытки'
+        ordering = ('-attempted_at',)
 
 class Mailing(models.Model):
 
