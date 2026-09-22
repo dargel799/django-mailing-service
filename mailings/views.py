@@ -90,6 +90,7 @@ class MailingUpdateView(OwnerRequiredMixin, UpdateView):
 
 class MailingDeleteView(OwnerRequiredMixin, DeleteView):
     model = Mailing
+    template_name = 'mailings/mailing_confirm_delete.html'
     success_url = reverse_lazy('mailings:mailing_list')
 
 
