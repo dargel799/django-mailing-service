@@ -38,7 +38,7 @@ class Attempt(models.Model):
 
     attempted_at = models.DateTimeField(auto_now_add=True, verbose_name='дата и время попытки')
     status = models.CharField(verbose_name='статус попытки', choices=Status.choices, max_length=max(len(i[0]) for i in Status.choices))
-    answer = models.TextField(verbose_name='ответ почтового сервера')
+    answer = models.TextField(verbose_name='ответ почтового сервера', **OPTIONAL)
     mailing = models.ForeignKey('Mailing', related_name='attempts', on_delete=models.CASCADE, verbose_name='рассылка')
 
     def __str__(self):
@@ -61,8 +61,8 @@ class Mailing(models.Model):
         CREATED = 'created', 'создана'
         STARTED = 'started', 'запущена'
 
-    first_send_at = models.DateTimeField(verbose_name='дата и время первой отправки рассылки')
-    next_send_at = models.DateTimeField(verbose_name='Дата и время следующий отправки')
+    first_send_at = models.DateTimeField(verbose_name='дата и время первой отправки рассылки', **OPTIONAL)
+    next_send_at = models.DateTimeField(verbose_name='Дата и время следующий отправки', **OPTIONAL)
     end_send_at = models.DateTimeField(verbose_name='Дата и время последней отправки', **OPTIONAL)
     periodicity = models.CharField(max_length=max(len(i[0]) for i in Frequency.choices), choices=Frequency.choices, verbose_name='периодичность')
     status = models.CharField(max_length=max(len(i[0]) for i in Status.choices), choices=Status.choices, default=Status.CREATED, verbose_name='статус рассылки')

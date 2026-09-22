@@ -18,7 +18,7 @@ class MailingForm(forms.ModelForm):
         fields = ['first_send_at', 'periodicity', 'clients']
         widgets = {
             'first_send_at': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'clients': forms.CheckboxSelectMultiple,  # или SelectMultiple по вкусу
+            'clients': forms.SelectMultiple(attrs={'class': 'd-none', 'id': 'id_clients'})
         }
 
     def __init__(self, *args, **kwargs):

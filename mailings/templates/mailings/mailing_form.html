@@ -27,8 +27,19 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Clients</label>
-                                {{ form.clients }}
+                                <label class="form-label">Клиенты</label>
+                                {{ form.clients }}  {# скрытый select, реально уходит в форму #}
+
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="small text-muted mb-1">Доступные</div>
+                                        <ul id="clients-available" class="list-group dual-list" style="min-height:200px;"></ul>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="small text-muted mb-1">Выбранные</div>
+                                        <ul id="clients-selected" class="list-group dual-list" style="min-height:200px;"></ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -63,5 +74,63 @@
     </div>
 </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const realSelect = document.getElementById('id_clients');
+    const availableList = document.getElementById('clients-available');
+    const selectedList = document.getElementById('clients-selected');
+
+    function makeItem(option) {
+        const li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.textContent = option.textContent;
+        li.dataset.value = option.value;
+        li.draggable = true;
+
+        li.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', option.value);
+        });
+        li.addEventListener('click', () => {
+            // двойной клик тоже переносит элемент между списками
+            const targetList = li.parentElement === availableList ? selectedList : availableList;
+            targetList.appendChild(li);
+            syncSelect();
+        });
+        return li;
+    }
+
+    function renderLists() {
+        availableList.innerHTML = '';
+        selectedList.innerHTML = '';
+        Array.from(realSelect.options).forEach(option => {
+            const item = makeItem(option);
+            (option.selected ? selectedList : availableList).appendChild(item);
+        });
+    }
+
+    function syncSelect() {
+        const selectedValues = Array.from(selectedList.children).map(li => li.dataset.value);
+        Array.from(realSelect.options).forEach(option => {
+            option.selected = selectedValues.includes(option.value);
+        });
+    }
+
+    [availableList, selectedList].forEach(list => {
+        list.addEventListener('dragover', e => e.preventDefault());
+        list.addEventListener('drop', e => {
+            e.preventDefault();
+            const value = e.dataTransfer.getData('text/plain');
+            const dragged = document.querySelector(`li[data-value="${value}"]`);
+            if (dragged) {
+                list.appendChild(dragged);
+                syncSelect();
+            }
+        });
+    });
+
+    renderLists();
+});
+</script>
 
 {% endblock %}
