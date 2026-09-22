@@ -67,7 +67,6 @@ def send_mailing(pk: int) -> MailingRunReport:
                 attempted_at=now,
                 status=Attempt.Status.FAILED,
                 answer=str(e),
-                client=client,
                 mailing=mailing,
             ))
         else:
@@ -76,7 +75,6 @@ def send_mailing(pk: int) -> MailingRunReport:
                 attempted_at=now,
                 status=Attempt.Status.SUCCESS,
                 answer='Письмо принято почтовым сервером',
-                client=client,
                 mailing=mailing,
             ))
 
