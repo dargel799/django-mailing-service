@@ -68,7 +68,8 @@
 
                             <div id="client-formset-container">
                                 {% for client_form in client_formset %}
-                                <div class="client-form-row border rounded p-2 mb-2">
+                                <div class="client-form-row border rounded p-2 mb-2 position-relative">
+                                    <button type="button" class="remove-client-form btn-close-red">&times;</button>
                                     {{ client_form.id }}
                                     <div class="mb-2">
                                         {{ client_form.full_name.label_tag }}
@@ -82,12 +83,6 @@
                                         {{ client_form.comment.label_tag }}
                                         {{ client_form.comment }}
                                     </div>
-                                    {% if client_formset.can_delete %}
-                                    <div class="form-check">
-                                        {{ client_form.DELETE }}
-                                        <label class="form-check-label">Удалить</label>
-                                    </div>
-                                    {% endif %}
                                 </div>
                                 {% endfor %}
                             </div>
@@ -112,6 +107,25 @@
     </div>
 </div>
 </div>
+
+<style>
+    .btn-close-red {
+        position: absolute;
+        top: 4px;
+        right: 8px;
+        border: none;
+        background: none;
+        color: #dc3545;
+        font-size: 1.3rem;
+        line-height: 1;
+        font-weight: bold;
+        cursor: pointer;
+        padding: 0 4px;
+    }
+    .btn-close-red:hover {
+        color: #a71d2a;
+    }
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -169,25 +183,55 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderLists();
 
-    // --- динамическое добавление форм в client formset (есть только на create) ---
+    // --- client formset: добавление и удаление форм (есть только на create) ---
     const addBtn = document.getElementById('add-client-form');
     if (addBtn) {
         const container = document.getElementById('client-formset-container');
         const totalForms = document.getElementById('id_clients-TOTAL_FORMS');
 
+        function reindexClientForms() {
+            const rows = container.querySelectorAll('.client-form-row');
+            rows.forEach((row, index) => {
+                row.querySelectorAll('input, textarea, label').forEach(el => {
+                    if (el.name) el.name = el.name.replace(/clients-\d+-/, `clients-${index}-`);
+                    if (el.id) el.id = el.id.replace(/clients-\d+-/, `clients-${index}-`);
+                    if (el.htmlFor) el.htmlFor = el.htmlFor.replace(/clients-\d+-/, `clients-${index}-`);
+                });
+            });
+            totalForms.value = rows.length;
+        }
+
+        function attachRemoveHandler(row) {
+            row.querySelector('.remove-client-form').addEventListener('click', () => {
+                const rows = container.querySelectorAll('.client-form-row');
+                if (rows.length <= 1) {
+                    // последнюю форму не удаляем, просто чистим поля
+                    row.querySelectorAll('input, textarea').forEach(input => { input.value = ''; });
+                    return;
+                }
+                row.remove();
+                reindexClientForms();
+            });
+        }
+
+        container.querySelectorAll('.client-form-row').forEach(attachRemoveHandler);
+
         addBtn.addEventListener('click', () => {
-            const formIndex = parseInt(totalForms.value, 10);
+            const formIndex = container.querySelectorAll('.client-form-row').length;
             const emptyRow = container.querySelector('.client-form-row').cloneNode(true);
 
             emptyRow.querySelectorAll('input, textarea').forEach(input => {
                 input.name = input.name.replace(/clients-\d+-/, `clients-${formIndex}-`);
                 input.id = input.id.replace(/clients-\d+-/, `clients-${formIndex}-`);
-                if (input.type !== 'checkbox') input.value = '';
-                else input.checked = false;
+                input.value = '';
+            });
+            emptyRow.querySelectorAll('label').forEach(label => {
+                if (label.htmlFor) label.htmlFor = label.htmlFor.replace(/clients-\d+-/, `clients-${formIndex}-`);
             });
 
             container.appendChild(emptyRow);
             totalForms.value = formIndex + 1;
+            attachRemoveHandler(emptyRow);
         });
     }
 });

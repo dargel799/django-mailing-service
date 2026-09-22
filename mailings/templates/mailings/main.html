@@ -207,7 +207,10 @@
             <div class="col-lg-6 col-md-8 mx-auto"><h1 class="fw-light">Album example</h1>
                 <p class="lead text-body-secondary">Че кого.</p>
                                         {% if user.is_authenticated  %}
-                <p><a href="{% url 'mailings:mailing_create' %}" class="btn btn-primary my-2">Создать рассылку</a></p></div>
+                <p>
+                    <a href="{% url 'mailings:mailing_create' %}" class="btn btn-primary my-2">Создать рассылку</a>
+                    <a href="{% url 'mailings:client_create' %}" class="btn btn-success my-2">Добавить клиента</a>
+                </p>
                      {% endif %}
         </div>
     </section>

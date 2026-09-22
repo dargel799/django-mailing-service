@@ -51,6 +51,16 @@ class MailingForm(forms.ModelForm):
         return mailing
 
 
+class ClientForm(forms.ModelForm):
+    class Meta:
+        model = Client
+        fields = ('full_name', 'email', 'comment')
+        widgets = {
+            'full_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
 ClientFormSet = modelformset_factory(
     Client,
     fields=('full_name', 'email', 'comment'),

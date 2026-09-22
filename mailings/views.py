@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, DeleteView, UpdateView
 
-from mailings.forms import MailingForm, ClientFormSet
+from mailings.forms import MailingForm, ClientFormSet, ClientForm
 from mailings.models import Message, Mailing, Client
 
 
@@ -91,3 +91,11 @@ class MailingUpdateView(OwnerRequiredMixin, UpdateView):
 class MailingDeleteView(OwnerRequiredMixin, DeleteView):
     model = Mailing
     success_url = reverse_lazy('mailings:mailing_list')
+
+
+
+class ClientCreateView(LoginRequiredMixin, CreateView):
+    model = Client
+    form_class = ClientForm
+    template_name = 'mailings/client_form.html'
+    success_url = reverse_lazy('mailings:client_create')
