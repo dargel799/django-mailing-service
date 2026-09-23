@@ -5,6 +5,7 @@ from django.views.generic import ListView, CreateView, DetailView, DeleteView, U
 
 from mailings.forms import MailingForm, ClientFormSet, ClientForm
 from mailings.models import Message, Mailing, Client
+from mailings.services import FREQUENCY_DELTAS
 
 
 class MessageListView(ListView):
@@ -70,6 +71,10 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
             return self.render_to_response(self.get_context_data(form=form))
 
         form.instance.owner = self.request.user
+        form.instance.next_send_at = (
+                form.instance.first_send_at
+                + FREQUENCY_DELTAS[form.instance.periodicity]
+        )
         response = super().form_valid(form)
 
         new_clients = client_formset.save()
