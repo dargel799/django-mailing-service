@@ -16,10 +16,11 @@ class MailingForm(forms.ModelForm):
 
     class Meta:
         model = Mailing
-        fields = ['first_send_at', 'periodicity', 'clients']
+        fields = ['first_send_at', 'periodicity', 'clients', 'end_send_at']
         widgets = {
             'first_send_at': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'clients': forms.SelectMultiple(attrs={'class': 'd-none', 'id': 'id_clients'})
+            'clients': forms.SelectMultiple(attrs={'class': 'd-none', 'id': 'id_clients'}),
+            'end_send_at': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'})
         }
 
     def __init__(self, *args, **kwargs):
