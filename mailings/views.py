@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, DetailView, DeleteView, UpdateView
 from mailings.permissions import OwnerRequiredMixin, ManagersRequiredMixin
 from mailings.forms import MailingForm, ClientFormSet, ClientForm
@@ -62,7 +62,9 @@ class MailingDetailView(OwnerRequiredMixin, DetailView):
 class MailingUpdateView(OwnerRequiredMixin, UpdateView):
     model = Mailing
     form_class = MailingForm
-    success_url = reverse_lazy('mailings:mailing_list')
+
+    def get_success_url(self):
+        return reverse('mailings:mailing_detail', kwargs={'pk': self.object.pk})
 
 
 class MailingDeleteView(OwnerRequiredMixin, DeleteView):
