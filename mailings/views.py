@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, DeleteView, UpdateView
-from mailings.permissions import OwnerRequiredMixin
+from mailings.permissions import OwnerRequiredMixin, ManagersRequiredMixin
 from mailings.forms import MailingForm, ClientFormSet, ClientForm
 from mailings.models import Message, Mailing, Client
 from mailings.services import FREQUENCY_DELTAS
@@ -93,9 +93,18 @@ class MailingDeleteView(OwnerRequiredMixin, DeleteView):
     success_url = reverse_lazy('mailings:mailing_list')
 
 
-
 class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client
     form_class = ClientForm
     template_name = 'mailings/client_form.html'
     success_url = reverse_lazy('mailings:client_create')
+
+
+class ClientDeleteView(ManagersRequiredMixin, DeleteView):
+    model = Client
+    success_url = reverse_lazy('mailings:clients_list')
+
+
+class ClientListView(ManagersRequiredMixin, ListView):
+    model = Mailing
+    template_name = 'mailings/client_list.html'
