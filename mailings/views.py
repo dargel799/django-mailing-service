@@ -3,31 +3,9 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, DeleteView, UpdateView
 from mailings.permissions import OwnerRequiredMixin, ManagersRequiredMixin
 from mailings.forms import MailingForm, ClientFormSet, ClientForm
-from mailings.models import Message, Mailing, Client
+from mailings.models import Mailing, Client
 from mailings.services import FREQUENCY_DELTAS
 
-
-class MessageListView(ListView):
-    model = Message
-
-class MessageCreateView(CreateView):
-    model = Message
-    fields = ['subject', 'body']
-    success_url = reverse_lazy('mailings:mailing-list')
-
-
-class MessageDetailView(DetailView):
-    model = Message
-
-
-class MessageUpdateView(UpdateView):
-    model = Message
-    success_url = reverse_lazy('mailings:mailing-list')
-
-
-class MessageDeleteView(DeleteView):
-    model = Message
-    success_url = reverse_lazy('mailings:mailing-list')
 
 
 class MailingListView(LoginRequiredMixin, ListView):
