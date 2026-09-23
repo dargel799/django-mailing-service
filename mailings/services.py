@@ -37,7 +37,7 @@ def send_mailing(pk: int) -> MailingRunReport:
     if mailing.status == Mailing.Status.FINISHED:
         return MailingRunReport()
 
-    if mailing.end_send_at and now > mailing.end_send_at:
+    if now > mailing.end_send_at:
         mailing.status = Mailing.Status.FINISHED
         mailing.save(update_fields=['status'])
         return MailingRunReport()
