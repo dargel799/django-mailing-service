@@ -93,8 +93,10 @@ class ClientListView(ManagersRequiredMixin, ListView):
 
 class ClientDetailView(ManagersRequiredMixin, DetailView):
     model = Client
+    template_name = 'mailings/client_detail.html'
 
 
 class ClientUpdateView(ManagersRequiredMixin, UpdateView):
     model = Client
+    fields = ['email', 'full_name', 'comment']
     success_url = reverse_lazy('mailings:mailing_list')
