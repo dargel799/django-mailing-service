@@ -61,9 +61,9 @@ class Mailing(models.Model):
         CREATED = 'created', 'создана'
         STARTED = 'started', 'запущена'
 
-    first_send_at = models.DateTimeField(verbose_name='дата и время первой отправки рассылки', **OPTIONAL)
-    next_send_at = models.DateTimeField(verbose_name='Дата и время следующий отправки', **OPTIONAL)
-    end_send_at = models.DateTimeField(verbose_name='Дата и время последней отправки', **OPTIONAL)
+    first_send_at = models.DateTimeField(verbose_name='дата и время первой отправки рассылки')
+    next_send_at = models.DateTimeField(verbose_name='Дата и время следующий отправки')
+    end_send_at = models.DateTimeField(verbose_name='Дата и время последней отправки')
     periodicity = models.CharField(max_length=max(len(i[0]) for i in Frequency.choices), choices=Frequency.choices, verbose_name='периодичность')
     status = models.CharField(max_length=max(len(i[0]) for i in Status.choices), choices=Status.choices, default=Status.CREATED, verbose_name='статус рассылки')
     message = models.OneToOneField(Message, on_delete=models.CASCADE, verbose_name='сообщение', related_name='рассылка')
