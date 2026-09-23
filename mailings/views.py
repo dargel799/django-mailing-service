@@ -1,8 +1,7 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
-from django.shortcuts import render, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, DetailView, DeleteView, UpdateView
-
+from mailings.permissions import OwnerRequiredMixin
 from mailings.forms import MailingForm, ClientFormSet, ClientForm
 from mailings.models import Message, Mailing, Client
 from mailings.services import FREQUENCY_DELTAS
@@ -29,11 +28,6 @@ class MessageUpdateView(UpdateView):
 class MessageDeleteView(DeleteView):
     model = Message
     success_url = reverse_lazy('mailings:mailing-list')
-
-
-class OwnerRequiredMixin(UserPassesTestMixin):
-    def test_func(self):
-        return self.get_object().owner == self.request.user
 
 
 class MailingListView(LoginRequiredMixin, ListView):
