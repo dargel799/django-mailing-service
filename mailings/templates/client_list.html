@@ -1,0 +1,34 @@
+{% extends 'mailings/main.html' %}
+{% block content %}
+
+<div class="album py-5 bg-body-tertiary">
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            {% for object in object_list %}
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <p class="card-text">{{ object.full_name|default:"Без имени" }}</p>
+                        <p class="card-text text-body-secondary">{{ object.email }}</p>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <a href="{% url 'mailings:client_detail' object.pk %}" class="btn btn-sm btn-primary">Просмотр</a>
+
+                                <form method="post" action="{% url 'mailings:client_delete' object.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Удалить</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-body-secondary">Клиентов пока нет.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
