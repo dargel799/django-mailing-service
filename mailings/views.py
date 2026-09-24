@@ -78,13 +78,13 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
 
 class ClientDeleteView(ManagersRequiredMixin, DeleteView):
     model = Client
-    success_url = reverse_lazy('mailings:clients_list')
+    success_url = reverse_lazy('mailings:client_list')
     http_method_names = ['post']
 
 
 class ClientListView(ManagersRequiredMixin, ListView):
     model = Client
-    template_name = 'mailings/clients_list.html'
+    template_name = 'mailings/client_list.html'
 
 
 class ClientDetailView(ManagersRequiredMixin, DetailView):

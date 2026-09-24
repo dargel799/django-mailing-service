@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
+    help = 'Создает супер юзера'
     def handle(self, *args, **options):
         user = User(
             full_name='admin',

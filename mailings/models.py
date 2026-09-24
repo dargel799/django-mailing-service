@@ -67,7 +67,7 @@ class Mailing(models.Model):
     end_send_at = models.DateTimeField(verbose_name='Дата и время последней отправки')
     periodicity = models.CharField(max_length=max(len(i[0]) for i in Frequency.choices), choices=Frequency.choices, verbose_name='периодичность')
     status = models.CharField(max_length=max(len(i[0]) for i in Status.choices), choices=Status.choices, default=Status.CREATED, verbose_name='статус рассылки')
-    message = models.OneToOneField(Message, on_delete=models.CASCADE, verbose_name='сообщение', related_name='рассылка')
+    message = models.OneToOneField(Message, on_delete=models.CASCADE, verbose_name='сообщение', related_name='mailings')
     clients = models.ManyToManyField('Client', related_name='mailings')
     owner = models.ForeignKey(User, related_name='mailings', verbose_name='владелец', on_delete=models.CASCADE)
 
