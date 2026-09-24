@@ -1,7 +1,7 @@
 from django.core.mail import send_mail
 from django.urls import reverse
 
-from config import settings
+from django.conf import settings
 from users.models import User
 
 def send_confirmation_email(user: User):

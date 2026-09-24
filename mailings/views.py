@@ -4,7 +4,6 @@ from django.views.generic import ListView, CreateView, DetailView, DeleteView, U
 from mailings.permissions import OwnerRequiredMixin, ManagersRequiredMixin
 from mailings.forms import MailingForm, ClientFormSet, ClientForm
 from mailings.models import Mailing, Client
-from mailings.services import FREQUENCY_DELTAS
 
 
 
@@ -43,10 +42,7 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
             return self.render_to_response(self.get_context_data(form=form))
 
         form.instance.owner = self.request.user
-        form.instance.next_send_at = (
-                form.instance.first_send_at
-                + FREQUENCY_DELTAS[form.instance.periodicity]
-        )
+        form.instance.next_send_at = form.instance.first_send_at
         response = super().form_valid(form)
 
         new_clients = client_formset.save()
@@ -88,7 +84,7 @@ class ClientDeleteView(ManagersRequiredMixin, DeleteView):
 
 class ClientListView(ManagersRequiredMixin, ListView):
     model = Client
-    template_name = 'mailings/client_list.html'
+    template_name = 'mailings/clients_list.html'
 
 
 class ClientDetailView(ManagersRequiredMixin, DetailView):

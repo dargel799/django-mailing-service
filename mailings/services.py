@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
-import smtplib
+from smtplib import SMTPException
 
 from .models import Mailing, Attempt
 
@@ -61,13 +61,14 @@ def send_mailing(pk: int) -> MailingRunReport:
                 [client.email],
                 fail_silently=False,
             )
-        except smtplib.SMTPException as e:
+        except (SMTPException, OSError) as e:
             failed_count += 1
             attempts.append(Attempt(
                 attempted_at=now,
                 status=Attempt.Status.FAILED,
                 answer=str(e),
                 mailing=mailing,
+                client=client
             ))
         else:
             sent_count += 1
@@ -76,12 +77,21 @@ def send_mailing(pk: int) -> MailingRunReport:
                 status=Attempt.Status.SUCCESS,
                 answer='Письмо принято почтовым сервером',
                 mailing=mailing,
+                client=client
             ))
 
     Attempt.objects.bulk_create(attempts)
 
-    mailing.next_send_at = now + FREQUENCY_DELTAS[mailing.periodicity]
-    mailing.save(update_fields=['next_send_at'])
+    delta = FREQUENCY_DELTAS[mailing.periodicity]
+    mailing.next_send_at += delta
+
+    while mailing.next_send_at <= now:
+        mailing.next_send_at += delta
+
+    if mailing.next_send_at > mailing.end_send_at:
+        mailing.status = Mailing.Status.FINISHED
+
+    mailing.save(update_fields=['next_send_at', 'status'])
 
     return MailingRunReport(sent_count=sent_count, failed_count=failed_count)
 
