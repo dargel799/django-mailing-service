@@ -44,8 +44,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     UsersConfig.name,
-    MailingsConfig.name
+    MailingsConfig.name,
+    'django_apscheduler',
+
 ]
 
 MIDDLEWARE = [
@@ -149,7 +152,7 @@ EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_TIMEOUT = 10 
+EMAIL_TIMEOUT = 10
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
