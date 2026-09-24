@@ -68,6 +68,13 @@ class MailingDeleteView(OwnerRequiredMixin, DeleteView):
     template_name = 'mailings/mailing_confirm_delete.html'
     success_url = reverse_lazy('mailings:mailing_list')
 
+    def form_valid(self, form):
+        self.object = self.get_object()
+        message = self.object.message
+        response = super().form_valid(form)
+        message.delete()
+        return response
+
 
 class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client

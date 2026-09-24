@@ -2,6 +2,7 @@ from django import forms
 from django.forms import modelformset_factory
 
 from mailings.models import Mailing, Message, Client
+from mailings.services import compute_next_send_at
 
 
 class MailingForm(forms.ModelForm):
@@ -29,6 +30,19 @@ class MailingForm(forms.ModelForm):
             self.fields['subject'].initial = self.instance.message.subject
             self.fields['body'].initial = self.instance.message.body
 
+    def clean(self):
+        cleaned_data = super().clean()
+        first_send_at = cleaned_data.get('first_send_at')
+        end_send_at = cleaned_data.get('end_send_at')
+
+        if first_send_at and end_send_at and end_send_at <= first_send_at:
+            self.add_error(
+                'end_send_at',
+                'Дата последней отправки должна быть позже даты первой отправки.'
+            )
+
+        return cleaned_data
+
     def save(self, commit=True):
         mailing = super().save(commit=False)
 
@@ -44,6 +58,7 @@ class MailingForm(forms.ModelForm):
 
         message.save()
         mailing.message = message
+        mailing.next_send_at = compute_next_send_at(mailing.first_send_at, mailing.periodicity)
 
         if commit:
             mailing.save()

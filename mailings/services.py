@@ -15,6 +15,20 @@ FREQUENCY_DELTAS = {
 }
 
 
+def compute_next_send_at(first_send_at, periodicity):
+    now = timezone.now()
+
+    if first_send_at >= now:
+        return first_send_at
+
+    delta = FREQUENCY_DELTAS[periodicity]
+    next_send_at = first_send_at
+    while next_send_at <= now:
+        next_send_at += delta
+
+    return next_send_at
+
+
 @dataclass
 class MailingRunReport:
     """ Сводка результата одного вызова send_mailing."""
