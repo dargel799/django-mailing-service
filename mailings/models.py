@@ -40,6 +40,7 @@ class Attempt(models.Model):
     status = models.CharField(verbose_name='статус попытки', choices=Status.choices, max_length=max(len(i[0]) for i in Status.choices))
     answer = models.TextField(verbose_name='ответ почтового сервера', **OPTIONAL)
     mailing = models.ForeignKey('Mailing', related_name='attempts', on_delete=models.CASCADE, verbose_name='рассылка')
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, related_name='attempts', **OPTIONAL)
 
     def __str__(self):
         return f'{self.attempted_at}: {self.status}'
