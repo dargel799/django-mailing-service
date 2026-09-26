@@ -57,6 +57,46 @@
                                 </small>
                             </div>
 
+           <hr class="my-4">
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">История отправок</h5>
+    <a href="{% url 'mailings:mailing_runs' object.pk %}" class="btn btn-sm btn-outline-primary">
+        Все отправки
+    </a>
+</div>
+
+{% if runs %}
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Дата и время</th>
+                    <th>Успешно</th>
+                    <th>Неуспешно</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for run in runs %}
+                    <tr>
+                        <td>{{ run.started_at }}</td>
+                        <td><span class="badge bg-success">{{ run.success_count }}</span></td>
+                        <td><span class="badge bg-danger">{{ run.failed_count }}</span></td>
+                        <td class="text-end">
+                            <a href="{% url 'mailings:run_detail' run.pk %}" class="btn btn-sm btn-outline-primary">
+                                Подробнее
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p class="text-body-secondary">Отправок ещё не было.</p>
+{% endif %}
+
                         </div>
                     </div>
                 </div>

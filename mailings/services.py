@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from smtplib import SMTPException
 
-from .models import Mailing, Attempt
+from .models import Mailing, Attempt, MailingRun
 
 FREQUENCY_DELTAS = {
     Mailing.Frequency.DAILY: relativedelta(days=1),
@@ -66,6 +66,8 @@ def send_mailing(pk: int) -> MailingRunReport:
     sent_count = 0
     failed_count = 0
 
+    run = MailingRun.objects.create(mailing=mailing)
+
     for client in mailing.clients.all():
         try:
             send_mail(
@@ -82,7 +84,8 @@ def send_mailing(pk: int) -> MailingRunReport:
                 status=Attempt.Status.FAILED,
                 answer=str(e),
                 mailing=mailing,
-                client=client
+                client=client,
+                run=run
             ))
         else:
             sent_count += 1
@@ -91,7 +94,8 @@ def send_mailing(pk: int) -> MailingRunReport:
                 status=Attempt.Status.SUCCESS,
                 answer='Письмо принято почтовым сервером',
                 mailing=mailing,
-                client=client
+                client=client,
+                run=run
             ))
 
     Attempt.objects.bulk_create(attempts)
