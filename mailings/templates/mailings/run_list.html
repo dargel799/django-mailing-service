@@ -1,10 +1,77 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'mailings/main.html' %}
+{% block content %}
 
-</body>
-</html>
+<div class="album py-5 bg-body-tertiary">
+    <div class="container">
+        <div class="row row-cols-1 g-3">
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <p class="card-text">
+                            Все отправки — рассылка «{{ mailing.message.subject }}»
+                        </p>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Дата и время</th>
+                                        <th>Успешно</th>
+                                        <th>Неуспешно</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for run in object_list %}
+                                        <tr>
+                                            <td>{{ run.started_at }}</td>
+                                            <td><span class="badge bg-success">{{ run.success_count }}</span></td>
+                                            <td><span class="badge bg-danger">{{ run.failed_count }}</span></td>
+                                            <td class="text-end">
+                                                <a href="{% url 'mailings:run_detail' run.pk %}" class="btn btn-sm btn-outline-primary">
+                                                    Подробнее
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr><td colspan="4">Отправок ещё не было.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {% if is_paginated %}
+                            <nav aria-label="Навигация по страницам">
+                                <ul class="pagination justify-content-center mt-4">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled"><span class="page-link">Назад</span></li>
+                                    {% endif %}
+
+                                    <li class="page-item disabled">
+                                        <span class="page-link">{{ page_obj.number }} из {{ paginator.num_pages }}</span>
+                                    </li>
+
+       {% if page_obj.has_next %}
+    <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Вперёд</a>
+    </li>
+{% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+
+                        <a href="{% url 'mailings:mailing_detail' mailing.pk %}" class="btn btn-outline-secondary mt-3">
+                            Назад к рассылке
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

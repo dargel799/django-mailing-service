@@ -1,10 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'mailings/main.html' %}
+{% block content %}
 
-</body>
-</html>
+<div class="album py-5 bg-body-tertiary">
+    <div class="container">
+        <div class="row row-cols-1 g-3">
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <p class="card-text">
+                            Отправка рассылки «{{ object.mailing.message.subject }}» — {{ object.started_at }}
+                        </p>
+
+                        <table class="table table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Клиент</th>
+                                    <th>Email</th>
+                                    <th>Статус</th>
+                                    <th>Ответ сервера</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attempt in attempts %}
+                                    <tr>
+                                        <td>{{ attempt.client.full_name|default:'—' }}</td>
+                                        <td>{{ attempt.client.email|default:'клиент удалён' }}</td>
+                                        <td>
+                                            {% if attempt.status == 'success' %}
+                                                <span class="badge bg-success">{{ attempt.get_status_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">{{ attempt.get_status_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ attempt.answer|default:'—' }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr><td colspan="4">Попыток нет.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <a href="{% url 'mailings:mailing_detail' object.mailing.pk %}" class="btn btn-outline-secondary">
+                            Назад к рассылке
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
