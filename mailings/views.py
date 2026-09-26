@@ -1,11 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, DetailView, DeleteView, UpdateView
 from mailings.permissions import OwnerRequiredMixin, ManagersRequiredMixin
 from mailings.forms import MailingForm, ClientFormSet, ClientForm
-from mailings.models import Mailing, Client
-
-
+from mailings.models import Mailing, Client, MailingRun, Attempt
+from django.db.models import Count, Q
 
 class MailingListView(LoginRequiredMixin, ListView):
     model = Mailing
@@ -54,6 +54,18 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
 class MailingDetailView(OwnerRequiredMixin, DetailView):
     model = Mailing
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['runs'] = (
+            self.object.runs
+            .annotate(
+                success_count=Count('attempts', filter=Q(attempts__status=Attempt.Status.SUCCESS)),
+                failed_count=Count('attempts', filter=Q(attempts__status=Attempt.Status.FAILED)),
+            )
+            .order_by('-started_at')[:10]
+        )
+        return context
+
 
 class MailingUpdateView(OwnerRequiredMixin, UpdateView):
     model = Mailing
@@ -75,6 +87,41 @@ class MailingDeleteView(OwnerRequiredMixin, DeleteView):
         message.delete()
         return response
 
+
+class RunDetailView(LoginRequiredMixin, DetailView):
+    model = MailingRun
+    template_name = 'mailings/run_detail.html'
+
+    def get_queryset(self):
+        return MailingRun.objects.filter(mailing__owner=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['attempts'] = self.object.attempts.select_related('client').order_by('client__email')
+        return context
+
+class RunListView(LoginRequiredMixin, ListView):
+    model = MailingRun
+    template_name = 'mailings/run_list.html'
+    paginate_by = 20
+
+    def get_queryset(self):
+        self.mailing = get_object_or_404(
+            Mailing, pk=self.kwargs['pk'], owner=self.request.user
+        )
+        return (
+            self.mailing.runs
+            .annotate(
+                success_count=Count('attempts', filter=Q(attempts__status=Attempt.Status.SUCCESS)),
+                failed_count=Count('attempts', filter=Q(attempts__status=Attempt.Status.FAILED)),
+            )
+            .order_by('-started_at')
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['mailing'] = self.mailing
+        return context
 
 class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client
