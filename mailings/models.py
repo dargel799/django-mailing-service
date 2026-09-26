@@ -41,6 +41,7 @@ class Attempt(models.Model):
     answer = models.TextField(verbose_name='ответ почтового сервера', **OPTIONAL)
     mailing = models.ForeignKey('Mailing', related_name='attempts', on_delete=models.CASCADE, verbose_name='рассылка')
     client = models.ForeignKey(Client, on_delete=models.SET_NULL, related_name='attempts', **OPTIONAL)
+    run = models.ForeignKey('MailingRun', related_name='attempts', on_delete=models.CASCADE, verbose_name='запуск рассылки')
 
     def __str__(self):
         return f'{self.attempted_at}: {self.status}'
@@ -72,5 +73,14 @@ class Mailing(models.Model):
     owner = models.ForeignKey(User, related_name='mailings', verbose_name='владелец', on_delete=models.CASCADE)
 
 
+class MailingRun(models.Model):
+    mailing = models.ForeignKey(Mailing, related_name='runs', on_delete=models.CASCADE)
+    started_at = models.DateTimeField(auto_now_add=True, verbose_name='время запуска рассылки')
 
+    class Meta:
+        verbose_name = 'запуск рассылки'
+        verbose_name_plural = 'запуски рассылки'
+        ordering = ('-started_at',)
 
+    def __str__(self):
+        return f'{self.mailing}: {self.started_at}'
