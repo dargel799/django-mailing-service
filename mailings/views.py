@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, DetailView, DeleteView, UpdateView
@@ -56,15 +57,23 @@ class MailingDetailView(OwnerRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['runs'] = (
-            self.object.runs
-            .annotate(
-                success_count=Count('attempts', filter=Q(attempts__status=Attempt.Status.SUCCESS)),
-                failed_count=Count('attempts', filter=Q(attempts__status=Attempt.Status.FAILED)),
+
+        cache_key = f'mailing_runs_{self.object.pk}'
+        runs = cache.get(cache_key)
+        if runs is None:
+            runs = list(
+                self.object.runs
+                .annotate(
+                    success_count=Count('attempts', filter=Q(attempts__status=Attempt.Status.SUCCESS)),
+                    failed_count=Count('attempts', filter=Q(attempts__status=Attempt.Status.FAILED)),
+                )
+                .order_by('-started_at')[:10]
             )
-            .order_by('-started_at')[:10]
-        )
+            cache.set(cache_key, runs, timeout=60)
+
+        context['runs'] = runs
         return context
+
 
 
 class MailingUpdateView(OwnerRequiredMixin, UpdateView):
@@ -97,7 +106,16 @@ class RunDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['attempts'] = self.object.attempts.select_related('client').order_by('client__email')
+
+        cache_key = f'run_attempts_{self.object.pk}'
+        attempts = cache.get(cache_key)
+        if attempts is None:
+            attempts = list(
+                self.object.attempts.select_related('client').order_by('client__email')
+            )
+            cache.set(cache_key, attempts, timeout=60*60*12)
+
+        context['attempts'] = attempts
         return context
 
 class RunListView(LoginRequiredMixin, ListView):

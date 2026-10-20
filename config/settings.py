@@ -47,7 +47,6 @@ INSTALLED_APPS = [
 
     UsersConfig.name,
     MailingsConfig.name,
-    'django_apscheduler',
 
 ]
 
@@ -124,7 +123,13 @@ USE_I18N = True
 
 USE_TZ = True
 
-
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": os.getenv("REDIS_CACHE_URL", "redis://127.0.0.1:6379/1"),
+        "TIMEOUT": 300,
+    }
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
