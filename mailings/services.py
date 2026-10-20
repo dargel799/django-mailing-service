@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 from smtplib import SMTPException
-
+from django.db.models import Q
 from .models import Mailing, Attempt, MailingRun
 
 FREQUENCY_DELTAS = {
@@ -113,9 +113,18 @@ def send_mailing(pk: int) -> MailingRunReport:
 
     return MailingRunReport(sent_count=sent_count, failed_count=failed_count)
 
+def get_due_mailing_ids() -> list[int]:
+    """Id рассылок, которые нужно обработать: время отправки наступило
+    или срок рассылки уже вышел."""
+    now = timezone.now()
+    return list(
+        Mailing.objects
+        .exclude(status=Mailing.Status.FINISHED)
+        .filter(Q(next_send_at__lte=now) | Q(end_send_at__lt=now))
+        .values_list('pk', flat=True)
+    )
 
 def process_mailings() -> list[MailingRunReport]:
     """Прогоняет через send_mailing не завершённе рассылки."""
 
-    mailings = Mailing.objects.exclude(status=Mailing.Status.FINISHED)
-    return [send_mailing(mailing.pk) for mailing in mailings]
+    return [send_mailing(pk) for pk in get_due_mailing_ids()]
