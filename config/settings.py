@@ -138,6 +138,14 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 
+CELERY_BEAT_SCHEDULE = {
+    "dispatch-due-mailings": {
+        "task": "mailings.tasks.dispatch_due_mailings",
+        "schedule": 60,
+    },
+}
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
