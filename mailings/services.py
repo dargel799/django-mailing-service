@@ -6,6 +6,8 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from smtplib import SMTPException
 from django.db.models import Q
+from django.db import transaction
+from django.core.cache import cache
 from .models import Mailing, Attempt, MailingRun
 
 FREQUENCY_DELTAS = {
@@ -40,33 +42,35 @@ class MailingRunReport:
 def send_mailing(pk: int) -> MailingRunReport:
     """Выполняет один цикл отправки рассылки."""
 
-    mailing = (
-        Mailing.objects
-        .select_related('message')
-        .prefetch_related('clients')
-        .get(pk=pk)
-    )
     now = timezone.now()
 
-    if mailing.status == Mailing.Status.FINISHED:
-        return MailingRunReport()
+    with transaction.atomic():
+        mailing = Mailing.objects.select_for_update().get(pk=pk)
 
-    if now > mailing.end_send_at:
-        mailing.status = Mailing.Status.FINISHED
-        mailing.save(update_fields=['status'])
-        return MailingRunReport()
+        if mailing.status == Mailing.Status.FINISHED:
+            return MailingRunReport()
 
-    if now < mailing.next_send_at:
-        return MailingRunReport()
+        if now > mailing.end_send_at:
+            mailing.status = Mailing.Status.FINISHED
+            mailing.save(update_fields=['status'])
+            return MailingRunReport()
 
-    mailing.status = Mailing.Status.STARTED
-    mailing.save(update_fields=['status'])
+        if now < mailing.next_send_at:
+            return MailingRunReport()
+
+        delta = FREQUENCY_DELTAS[mailing.periodicity]
+        mailing.next_send_at += delta
+        while mailing.next_send_at <= now:
+            mailing.next_send_at += delta
+
+        mailing.status = Mailing.Status.STARTED
+        mailing.save(update_fields=['status', 'next_send_at'])
+
+        run = MailingRun.objects.create(mailing=mailing)
 
     attempts = []
     sent_count = 0
     failed_count = 0
-
-    run = MailingRun.objects.create(mailing=mailing)
 
     for client in mailing.clients.all():
         try:
@@ -99,17 +103,11 @@ def send_mailing(pk: int) -> MailingRunReport:
             ))
 
     Attempt.objects.bulk_create(attempts)
-
-    delta = FREQUENCY_DELTAS[mailing.periodicity]
-    mailing.next_send_at += delta
-
-    while mailing.next_send_at <= now:
-        mailing.next_send_at += delta
+    cache.delete_many([f'run_attempts_{run.pk}', f'mailing_runs_{mailing.pk}'])
 
     if mailing.next_send_at > mailing.end_send_at:
         mailing.status = Mailing.Status.FINISHED
-
-    mailing.save(update_fields=['next_send_at', 'status'])
+        mailing.save(update_fields=['status'])
 
     return MailingRunReport(sent_count=sent_count, failed_count=failed_count)
 
@@ -126,5 +124,4 @@ def get_due_mailing_ids() -> list[int]:
 
 def process_mailings() -> list[MailingRunReport]:
     """Прогоняет через send_mailing не завершённе рассылки."""
-
     return [send_mailing(pk) for pk in get_due_mailing_ids()]
