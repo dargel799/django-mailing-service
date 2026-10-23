@@ -15,7 +15,7 @@ def send_mailing_task(pk: int) -> dict:
     try:
         report = send_mailing(pk)
     except Mailing.DoesNotExist:
-        logger.warning('Рассылка %s не найдена (возможно, удалена)', pk)
+        logger.warning('Рассылка %s не найдена', pk)
         return {'sent': 0, 'failed': 0}
 
     logger.info('Рассылка %s: отправлено %s, ошибок %s', pk, report.sent_count, report.failed_count)

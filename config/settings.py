@@ -13,8 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
-from django.conf.global_settings import AUTH_USER_MODEL, MEDIA_ROOT, MEDIA_URL, LOGIN_REDIRECT_URL, LOGOUT_REDIRECT_URL, \
-    STATIC_ROOT
+
 
 from mailings.apps import MailingsConfig
 from users.apps import UsersConfig
